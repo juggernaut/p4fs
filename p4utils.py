@@ -1,6 +1,8 @@
 """
 A module to handle p4 operations
 """
+import datetime
+
 import P4
 
 from fsutils import Directory, File
@@ -43,39 +45,49 @@ class P4utils(object):
         return [path.split(root)[1] for path in paths]
 
     def _get_dirnames(self, path):
-        results = self._get_dirs(path)
+        """
+        Get all directories in path
+        """
+        results =  self.p4.run('dirs', path)
         return [item['dir'] for item in results]
 
     def _get_filenames(self, path):
-        results = self._get_files(path)
+        """
+        Get all filenames in path
+        """
+        results = self.p4.run('files', path)
         return [item['depotFile'] for item in results]
 
-    def _get_dirs(self, path):
+    def _get_filelog(self, path):
         """
-        Get directories in path
+        Return a list of DepotFile objects at `path`
         """
-        return self.p4.run('dirs', path)
-
-    def _get_files(self, path):
-        """
-        Get files in path
-        """
-        return self.p4.run('files', path)
+        return self.p4.run_filelog(path)
 
     def get_attrs(self, path):
         """
         Get the attributes of path, if it exists. Else, return None
         """
         # Try directory first, then file
-        result = self._get_dirs(path)
+        result = self._get_dirnames(path)
         if result:
             return P4Directory(path).attrs
 
-        result = self._get_files(path)
+        result = self._get_filelog(path)
         if result:
             return P4File(path, result[0]).attrs
 
         return None
+
+    def get_file(self, path):
+        """
+        Return the contents of path
+        """
+        result = self.p4.run('print', path)
+        # Output is [{'type': 'text', 'action': 'edit'}, 'Hi hello....', '']
+        if result[0]['type'] != 'text':
+            return ''
+        return result[1]
 
 
 class P4Directory(Directory):
@@ -95,11 +107,21 @@ class P4File(File):
 
     def get_attrs(self):
         attrs = super(P4File, self).get_attrs()
-        time = int(self.depotfile['time'])
+        latest_rev = self.depotfile.revisions[0]
+        time = to_epoch(latest_rev.time)
+        size = int(latest_rev.fileSize)
         override = {
+            'st_size': size,
             'st_atime': time,
             'st_ctime': time,
             'st_mtime': time,
         }
         attrs.update(override)
         return attrs
+
+def to_epoch(dt):
+    """
+    Converts a datetime object to epoch time
+    """
+    delta = dt - datetime.datetime(1970, 1, 1)
+    return delta.seconds + delta.days * 24 * 3600

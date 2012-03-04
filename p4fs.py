@@ -67,15 +67,11 @@ class P4fs(LoggingMixIn, Operations):
         return result
     
     def getxattr(self, path, name, position=0):
-        attrs = self.files[path].get('attrs', {})
-        try:
-            return attrs[name]
-        except KeyError:
-            return ''       # Should return ENOATTR
+        # Extended attributes not supported
+        return '' # should return ENOATTR, but it's not in errno
     
     def listxattr(self, path):
-        attrs = self.files[path].get('attrs', {})
-        return attrs.keys()
+        return []
     
     def mkdir(self, path, mode):
         # XXX: Not implemented
@@ -92,7 +88,9 @@ class P4fs(LoggingMixIn, Operations):
     
     def read(self, path, size, offset, fh):
         # XXX: SHOULD be implemented
-        return self.data[path][offset:offset + size]
+        # Naive implementation; no caching
+        data = self.p4.get_file(to_p4_path(path))
+        return data[offset:offset + size]
     
     def readdir(self, path, fh):
         # XXX: SHOULD be implemented

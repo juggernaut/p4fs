@@ -38,7 +38,7 @@ class File(FSobj):
     def get_attrs(self):
         attrs = super(File, self).get_attrs()
         attrs['st_mode'] = (S_IFREG | self.mode)
-        attrs['st_nlink'] = 0
+        attrs['st_nlink'] = 1
         return attrs
 
 
