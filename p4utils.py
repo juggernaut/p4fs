@@ -11,14 +11,11 @@ class P4utils(object):
     """
     Encapsulates interaction with perforce
     """
-    def __init__(self, host, port, user):
-        self.host = host
+    def __init__(self, port, user):
         self.port = port
         self.user = user
 
         p4 = P4.P4()
-        if host:
-            p4.host = host
         if port:
             p4.port = port
         if user:
@@ -56,7 +53,8 @@ class P4utils(object):
         Get all filenames in path
         """
         results = self.p4.run('files', path)
-        return [item['depotFile'] for item in results]
+        return [item['depotFile'] for item in results
+                if item['action'].find('delete') == -1]
 
     def _get_filelog(self, path):
         """
@@ -85,7 +83,7 @@ class P4utils(object):
         """
         result = self.p4.run('print', path)
         # Output is [{'type': 'text', 'action': 'edit'}, 'Hi hello....', '']
-        if result[0]['type'] != 'text':
+        if result[0]['type'].find('text') == -1:
             return ''
         return result[1]
 

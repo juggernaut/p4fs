@@ -19,7 +19,7 @@ class P4fs(LoggingMixIn, Operations):
     A simple read-only perforce filesystem
     """
     
-    def __init__(self, host, port, user):
+    def __init__(self, port, user):
         """
         Init method
         """
@@ -27,7 +27,7 @@ class P4fs(LoggingMixIn, Operations):
         self.data = defaultdict(str)
         self.fd = 0
         self.files['/'] = Directory('/')
-        self.p4 = p4utils.P4utils(host, port, user)
+        self.p4 = p4utils.P4utils(port, user)
         
     def chmod(self, path, mode):
         # XXX: Not implemented
@@ -159,15 +159,13 @@ def parse_opts(opts):
     Parse command line arguments
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--host', '-H', help='hostname to connect to')
     parser.add_argument('--port', '-p', help='port to connect to')
-    parser.add_argument('--user', '-u', required=True,
-                        help='user to connect as')
+    parser.add_argument('--user', '-u', help='user to connect as')
     parser.add_argument('mountpoint')
 
     return parser.parse_args(opts)
 
 if __name__ == "__main__":
     opts = parse_opts(sys.argv[1:])
-    p4fs = P4fs(opts.host, opts.port, opts.user)
+    p4fs = P4fs(opts.port, opts.user)
     fuse = FUSE(p4fs, opts.mountpoint, foreground=True)
