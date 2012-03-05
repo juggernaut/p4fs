@@ -3,7 +3,6 @@
 import argparse
 from collections import defaultdict
 from errno import ENOENT
-from stat import S_IFDIR, S_IFLNK, S_IFREG
 import sys
 import time
 
@@ -24,7 +23,6 @@ class P4fs(LoggingMixIn, Operations):
         Init method
         """
         self.files = {}
-        self.data = defaultdict(str)
         self.fd = 0
         self.files['/'] = Directory('/')
         self.p4 = p4utils.P4utils(port, user)
@@ -100,7 +98,11 @@ class P4fs(LoggingMixIn, Operations):
         return dirents
     
     def readlink(self, path):
+        """
         return self.data[path]
+        """
+        return
+
     
     def removexattr(self, path, name):
         attrs = self.files[path].get('attrs', {})
@@ -128,13 +130,17 @@ class P4fs(LoggingMixIn, Operations):
         return dict(f_bsize=512, f_blocks=4096, f_bavail=2048)
     
     def symlink(self, target, source):
+        """
         self.files[target] = dict(st_mode=(S_IFLNK | 0777), st_nlink=1,
             st_size=len(source))
         self.data[target] = source
+        """
     
     def truncate(self, path, length, fh=None):
+        """
         self.data[path] = self.data[path][:length]
         self.files[path]['st_size'] = length
+        """
     
     def unlink(self, path):
         self.files.pop(path)
