@@ -105,15 +105,15 @@ class P4fs(LoggingMixIn, Operations):
     
     def symlink(self, target, source):
         # Not implemented
-        return 1
+        return 0
     
     def truncate(self, path, length, fh=None):
         # Not implemented
-        return 1
+        return 0
     
     def unlink(self, path):
         # Not implemented
-        return 1
+        return 0
     
     def utimens(self, path, times=None):
         now = time()
