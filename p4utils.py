@@ -87,6 +87,9 @@ class P4utils(object):
             return ''
         return result[1]
 
+    def __del__(self):
+        self.p4.disconnect()
+
 
 class P4Directory(Directory):
     """
