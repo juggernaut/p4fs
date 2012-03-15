@@ -81,11 +81,12 @@ class P4utils(object):
         """
         Return the contents of path
         """
-        result = self.p4.run('print', path)
-        # Output is [{'type': 'text', 'action': 'edit'}, 'Hi hello....', '']
+        handler = P4OutputHandler()
+        result = self.p4.run('print', path, handler=handler)
+        # Output is [{'type': 'text', 'action': 'edit'}]
         if result[0]['type'].find('text') == -1:
             return ''
-        return result[1]
+        return handler.output
 
     def __del__(self):
         self.p4.disconnect()
@@ -119,6 +120,22 @@ class P4File(File):
         }
         attrs.update(override)
         return attrs
+
+
+class P4OutputHandler(P4.OutputHandler):
+    """
+    Custom output handler, mainly for `p4 print` because it doesn't handle
+    streaming output correctly
+    """
+    def __init__(self):
+        P4.OutputHandler.__init__(self)
+        self.output = ''
+    
+    def outputText(self, s):
+        self.output = self.output + s
+        # Signal that we've already handled the output
+        return self.HANDLED
+
 
 def to_epoch(dt):
     """
