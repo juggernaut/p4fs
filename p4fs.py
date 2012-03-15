@@ -28,15 +28,15 @@ class P4fs(LoggingMixIn, Operations):
         self.p4 = p4utils.P4utils(port, user)
         
     def chmod(self, path, mode):
-        # XXX: Not implemented
+        # Not implemented
         return 0
 
     def chown(self, path, uid, gid):
-        # XXX: Not implemented
+        # Not implemented
         return
     
     def create(self, path, mode):
-        # XXX: Not implemented
+        # Not implemented
         return 0
     
     def getattr(self, path, fh=None):
@@ -55,7 +55,7 @@ class P4fs(LoggingMixIn, Operations):
         return []
     
     def mkdir(self, path, mode):
-        # XXX: Not implemented
+        # Not implemented
         return
     
     def open(self, path, flags):
@@ -63,13 +63,11 @@ class P4fs(LoggingMixIn, Operations):
         return self.fd
     
     def read(self, path, size, offset, fh):
-        # XXX: SHOULD be implemented
         # Naive implementation; no caching
         data = self.p4.get_file(to_p4_path(path))
         return data[offset:offset + size]
     
     def readdir(self, path, fh):
-        # XXX: SHOULD be implemented
         #return ['.', '..'] + [x[1:] for x in self.files if x != '/']
         dirents = ['..', '..']
         dirents.extend(self.p4.listdir(to_p4_path(path)))
@@ -86,7 +84,7 @@ class P4fs(LoggingMixIn, Operations):
             pass        # Should return ENOATTR
     
     def rename(self, old, new):
-        # XXX: Not implemented
+        # Not implemented
         self.files[new] = self.files.pop(old)
     
     def rmdir(self, path):
@@ -100,7 +98,6 @@ class P4fs(LoggingMixIn, Operations):
         attrs[name] = value
     
     def statfs(self, path):
-        # XXX: Should be implemented
         return dict(f_bsize=512, f_blocks=4096, f_bavail=2048)
     
     def symlink(self, target, source):
@@ -116,13 +113,11 @@ class P4fs(LoggingMixIn, Operations):
         return 0
     
     def utimens(self, path, times=None):
-        now = time()
-        atime, mtime = times if times else (now, now)
-        self.files[path]['st_atime'] = atime
-        self.files[path]['st_mtime'] = mtime
+        # Not implemented
+        return
     
     def write(self, path, data, offset, fh):
-        # XXX: Not implemented
+        # Not implemented
         return 0
 
 def parse_opts(opts):
