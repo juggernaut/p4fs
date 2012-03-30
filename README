@@ -1,0 +1,3 @@
+p4fs - A FUSE filesystem for perforce
+
+Usage - python p4fs.py -p <port> -u <user> <mountpoint>
